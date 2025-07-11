@@ -6,11 +6,5 @@ services:
     volumes:
       - ../app:/opt/app:delegated
     working_dir: /opt/app
-    # ports:
-    #   - 8000:8000
     environment:
       - PYTHONUNBUFFERED=1
-
-# volumes:
-#   db:
-#     driver: local
