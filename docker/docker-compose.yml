@@ -1,7 +1,6 @@
 services:
   smith-ai:
     image: smith/python3.12/ai
-    command: python -u /opt/app/main.py
     restart: no
     volumes:
       - ../app:/opt/app:delegated

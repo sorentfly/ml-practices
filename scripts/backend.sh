@@ -14,11 +14,11 @@ case "$1" in
     docker compose -f "$DIR/docker/docker-compose.yml" up -d
     ;;
   --reinstall)
-    docker compose down -v
+    docker compose -f "$DIR/docker/docker-compose.yml" down -v
     ./backend.sh --install
     ;;
   *)
-    docker compose up -d
+    docker compose -f "$DIR/docker/docker-compose.yml" up -d
     ;;
 esac
 
