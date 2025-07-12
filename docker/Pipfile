@@ -6,6 +6,7 @@ name = "pypi"
 [packages]
 matplotlib = "==3.10.3"
 pandas = "==2.3.1"
+dash = "==3.1.1"
 
 [requires]
 python_version = "3.12"

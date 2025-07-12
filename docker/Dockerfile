@@ -8,9 +8,10 @@ RUN pip install --no-cache-dir --upgrade pip && \
 
 WORKDIR /opt/app
 
-COPY /docker/Pipfile /docker/Pipfile.lock /opt/app
+COPY /docker/Pipfile /docker/Pipfile.lock /opt/app/
 RUN pipenv --clear install --deploy --system
 
 COPY ./app /opt/app
+EXPOSE 8080
 
 CMD ["tail", "-f", "/dev/null"]

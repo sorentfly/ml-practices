@@ -4,6 +4,9 @@ services:
     restart: no
     volumes:
       - ../app:/opt/app:delegated
+    ports:
+      - "4444:8080"
     working_dir: /opt/app
+    command: python web/app.py
     environment:
       - PYTHONUNBUFFERED=1
