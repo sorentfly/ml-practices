@@ -46,6 +46,7 @@ app.layout = html.Div([
     dcc.Store(id='color-conditions', data=[]),
 ])
 
+
 # Парсинг CSV с учётом разделителя
 def parse_contents(contents, separator):
     if contents is None:
@@ -59,6 +60,7 @@ def parse_contents(contents, separator):
     except Exception as e:
         print(f"Error parsing CSV: {str(e)}")
         return None
+
 
 # Отображение имени файла и кнопки открепить
 @app.callback(

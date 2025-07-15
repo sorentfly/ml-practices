@@ -30,6 +30,21 @@ class Perceptron:
                 error += 1 if y != y_ else 0
             self.errors.append(error)
 
+    def test(
+            self,
+            input_set,
+            expected_set,
+    ):
+        errors = 0
+        for xi, y in zip(input_set, expected_set):
+            y_ = self.predict(xi)
+            update = self.eta * (y - y_)
+            self.weights[1:] += update * xi
+            self.weights[0] += update
+
+            errors += 1 if y != y_ else 0
+        return f'test ended with {errors} errors'
+
     def net_input(
             self,
             input_set,
@@ -37,4 +52,4 @@ class Perceptron:
         return np.dot(input_set, self.weights[1:]) + self.weights[0]
 
     def predict(self, input_set):
-        return 1 if self.net_input(input_set) >= 0 else - 1
+        return np.where(self.net_input(input_set) >= 0, 1, - 1)

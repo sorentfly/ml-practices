@@ -1,39 +1,36 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.colors import ListedColormap
 
 from perceptron import Perceptron
-
+from adaline import Adaline
 
 df = pd.read_csv("data/iris.csv", names=["sepal_length", "sepal_width", "petal_length", "petal_width", "name"])
 
+X = df.iloc[0:100, [0, 2]].values
 
-X = df[df["name"].str.contains("Iris-virginica") == False].drop('sepal_width', axis=1).drop('petal_width', axis=1).drop('name', axis=1).to_numpy()
+y = df.loc[0:100, 'name']
+y = np.where(y == 'Iris-setosa', -1, 1)
+
+# standard normalization
+X_std = np.copy(X)
+X_std[:, 0] = (X[:, 0] - X[:, 0].mean()) / X[:, 0].std()
+X_std[:, 1] = (X[:, 1] - X[:, 1].mean()) / X[:, 1].std()
 
 
-y = df[df["name"].str.contains("Iris-virginica") == False]['name'].replace('Iris-setosa', -1).replace('Iris-versicolor', 1).to_numpy()
-
-
-def process_classifier(input_features, answers_vector, classifier: Perceptron):
+def process_classifier(input_features, answers_vector, classifier: Perceptron, plots: bool = True):
     classifier.execute(input_set=input_features, expected_set=answers_vector)
 
-    show_error_plot(classifier.errors)
+    if plots:
+        show_error_plot(classifier.errors)
 
-    show_decision_plot(classifier)
-
-
-def show_decision_plot(classifier):
-    fig = plt.figure()
-    ax1 = fig.add_subplot(111)
-    ax1.scatter(X[:len(X) // 2, 0], X[:len(X) // 2, 1], color='green', edgecolor='black', alpha=1)
-    ax1.scatter(X[len(X) // 2:, 0], X[len(X) // 2:, 1], color='red', edgecolor='black', alpha=1)
-    x = np.linspace(4, 8, 100)
-    f = - classifier.weights[0] - classifier.weights[1] / classifier.weights[2] * x
-    ax1.plot(x, f, 'k')
-    plt.title('Result border calculated with perceptron')
-    plt.xlabel('sepal lenth')
-    plt.ylabel('petal_lenght')
-    plt.show()
+        plot_decision_regions(input_features, answers_vector, classifier)
+        plt.title('ADALINE (градиентный спуск) ')
+        plt.xlabel(' длина чашелистика [стандартизованная]')
+        plt.ylabel('длина лепестка [стандартизованная]')
+        plt.legend(loc='upper left')
+        plt.show()
 
 
 def show_error_plot(input_vector):
@@ -43,6 +40,40 @@ def show_error_plot(input_vector):
     plt.show()
 
 
+def plot_decision_regions(X, y, classifier, resolution=0.02):
+    # настроить генератор маркеров и палитру
+    markers = ('s', 'x', '0', '^', 'v')
+    colors = ('red', 'blue', 'lightgreen ', 'gray', 'cyan')
+    cmap = ListedColormap(colors[:len(np.unique(y))])
+    # вывести поверхность решения
+    x1_min, x1_max = X[:, 0].min() - 1, X[:, 0].max() + 1
+    x2_min, x2_max = X[:, 1].min() - 1, X[:, 1].max() + 1
+    xx1, xx2 = np.meshgrid(np.arange(x1_min, x1_max, resolution),
+                           np.arange(x2_min, x2_max, resolution))
+    z = classifier.predict(np.array([xx1.ravel(), xx2.ravel()]).T)
+    z = z.reshape(xx1.shape)
+    plt.contourf(xx1, xx2, z, alpha=0.4, cmap=cmap)
+    plt.xlim(xx1.min(), xx1.max())
+    plt.ylim(xx2.min(), xx2.max())
+    # показать образцы классов
+    for idx, cl in enumerate(np.unique(y)):
+        plt.scatter(x=X[y == cl, 0], y=X[y == cl, 1],
+                    alpha=0.8, c=cmap(idx),
+                    marker=markers[idx], label=cl)
+
+
 if __name__ == "__main__":
-    ppt = Perceptron()
-    process_classifier(X, y, ppt)
+    x_train = np.concatenate((X_std[:25], X_std[50:90]))
+    # y_train = np.concatenate((y[:25], y[50:90]))
+    # x_test = np.concatenate((X_std[25:50], X_std[90:]))
+    # y_test = np.concatenate((y[25:50], y[90:]))
+
+    # x_train = np.concatenate((X[:25], X[50:90]))
+    y_train = np.concatenate((y[:25], y[50:90]))
+    # x_test = np.concatenate((X[25:50], X[90:]))
+    y_test = np.concatenate((y[25:50], y[90:]))
+
+    ada = Adaline(iterations_count=13, eta=0.01)
+    # ppt = Perceptron(iterations_count=60)
+    process_classifier(x_train, y_train, ada)
+    # print(ppt.test(x_test, y_test))
